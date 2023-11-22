@@ -47,7 +47,7 @@ We are here to provide you with the best support possible. If you have any quest
 
 * Founder: 9x00
 
-* [GriefUnion](https://github.com/GriefUnion) Rewriting & recontinuing the addon.
+* [GriefUnion](https://github.com/GriefUnion) Rewriting & recontinuing the addon, also for most of the modules that were in the original crystal addon.
 
 # Info 
 
