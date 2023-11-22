@@ -20,7 +20,7 @@ public class FakeHacker extends Module {
     private PlayerEntity target = null;
 
     public FakeHacker() {
-        super(Categories.Misc, "Fake Hacker", "CRYSTAL || Makes it seem like another player is hacking.");
+        super(Categories.Misc, "fake-hacker", "CRYSTAL || Makes it seem like another player is hacking.");
     }
 
     @Override

@@ -235,7 +235,7 @@ public class AntiCrash extends Module {
     private long lastScreen;
 
     public AntiCrash() {
-        super(Categories.Misc, "Anti Crash", "CRYSTAL || Attempts to stop exploits from crashing your client.");
+        super(Categories.Misc, "anti-crash", "CRYSTAL || Attempts to stop exploits from crashing your client.");
     }
 
     @Override
