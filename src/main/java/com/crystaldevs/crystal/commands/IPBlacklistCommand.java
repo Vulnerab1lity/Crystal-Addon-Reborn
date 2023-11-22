@@ -1,5 +1,7 @@
 package com.crystaldevs.crystal.commands;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import meteordevelopment.meteorclient.commands.Command;
@@ -13,7 +15,6 @@ import java.util.Scanner;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
-// TODO: Make this work
 public class IPBlacklistCommand extends Command {
     private static final String API_KEY = "1f2e42ff297481ac8976fd44fd7a88fee81870580cfd07c549dfa3a6a7ff3b122306803a9c081566";
     private static final String API_URL = "https://api.abuseipdb.com/api/v2/check";
@@ -71,6 +72,13 @@ public class IPBlacklistCommand extends Command {
     }
 
     private boolean parseBlacklistResponse(String responseString) {
-        return false;
+        JsonObject json = JsonParser.parseString(responseString).getAsJsonObject();
+        JsonObject data = json.getAsJsonObject("data");
+
+        boolean whitelisted = data.has("isWhitelisted") && data.get("isWhitelisted").getAsBoolean();
+        int confidence = data.has("abuseConfidenceScore") ? data.get("abuseConfidenceScore").getAsInt() : 0;
+        int reports = data.has("totalReports") ? data.get("totalReports").getAsInt() : 0;
+
+        return (!whitelisted && confidence > 60) || reports >= 3;
     }
 }
