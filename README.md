@@ -57,7 +57,7 @@ We are here to provide you with the best support possible. If you have any quest
 
 # Legal
 
-[LICENSE](https://github.com/GriefUnion/Crystal-Addon-Reborn/blob/main/LICENSE)
+[LICENSE](https://github.com/GriefUnion/Crystal-Addon-Reborn/blob/master/LICENSE)
 
 * Modules like UDP Flood are only for pen-testing and educational purposes. I strongly discourage any malicious use of them.
 
