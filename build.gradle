@@ -48,16 +48,10 @@ processResources {
     }
 }
 
-jar {
-    from {
-        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
-
 tasks.withType(Jar).configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.encoding = "UTF-8"
+    it.options.encoding("UTF-8")
 }
