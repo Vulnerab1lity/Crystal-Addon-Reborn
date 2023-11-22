@@ -136,19 +136,19 @@ public class IPInfo {
     @Override
     public String toString() {
         return "IP Information for " + query + ":\n" +
-            "Status: " + status + "\n" +
-            "Country: " + country + "\n" +
-            "Country Code: " + countryCode + "\n" +
-            "Region: " + region + "\n" +
-            "Region Name: " + regionName + "\n" +
-            "City: " + city + "\n" +
-            "Zip: " + zip + "\n" +
-            "Latitude: " + lat + "\n" +
-            "Longitude: " + lon + "\n" +
-            "Timezone: " + timezone + "\n" +
-            "ISP: " + isp + "\n" +
-            "Organization: " + org + "\n" +
-            "AS: " + as + "\n" +
-            "Query: " + query;
+                "Status: " + status + "\n" +
+                "Country: " + country + "\n" +
+                "Country Code: " + countryCode + "\n" +
+                "Region: " + region + "\n" +
+                "Region Name: " + regionName + "\n" +
+                "City: " + city + "\n" +
+                "Zip: " + zip + "\n" +
+                "Latitude: " + lat + "\n" +
+                "Longitude: " + lon + "\n" +
+                "Timezone: " + timezone + "\n" +
+                "ISP: " + isp + "\n" +
+                "Organization: " + org + "\n" +
+                "AS: " + as + "\n" +
+                "Query: " + query;
     }
 }

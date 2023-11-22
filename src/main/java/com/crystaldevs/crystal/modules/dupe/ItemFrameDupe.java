@@ -9,43 +9,24 @@ import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Box;
 
 import java.util.List;
 
 public class ItemFrameDupe extends Module {
-    public boolean isDuping = false;
-    private final Setting<Boolean> autoDisable;
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    private final Setting<Double> destroyTime;
-
-    private final Setting<Boolean> alwaysActive;
-
-    public ItemFrameDupe() {
-        super(CrystalAddon.CRYSTAL_DUPE_CATEGORY.get(), "Item Frame Dupe", "CRYSTAL || Dupes an item by quickly replacing an item frame.");
-        SettingGroup sgGeneral = settings.getDefaultGroup();
-
-        autoDisable = sgGeneral.add(new BoolSetting.Builder()
-            .name("Auto Disable")
+    private final Setting<Boolean> autoDisable = sgGeneral.add(new BoolSetting.Builder()
+            .name("auto-disable")
             .description("Disables module on kick.")
             .defaultValue(true)
             .build()
-        );
+    );
 
-        alwaysActive = settings.getDefaultGroup().add(new BoolSetting.Builder()
-            .name("Always on")
-            .description("Always dupes without interaction.")
-            .defaultValue(false)
-            .build()
-        );
-
-        destroyTime = settings.getDefaultGroup().add(new DoubleSetting.Builder()
-            .name("Destroy Time")
+    private final Setting<Double> destroyTime = settings.getDefaultGroup().add(new DoubleSetting.Builder()
+            .name("destroy-time")
             .description("Delay for breaking / replacing.")
             .defaultValue(50)
             .min(1)
@@ -53,113 +34,98 @@ public class ItemFrameDupe extends Module {
             .sliderMin(50)
             .sliderMax(1000)
             .build()
-        );
+    );
+
+    private final Setting<Boolean> alwaysActive = settings.getDefaultGroup().add(new BoolSetting.Builder()
+            .name("always-on")
+            .description("Always dupes without interaction.")
+            .defaultValue(false)
+            .build()
+    );
+
+    public boolean isDuping = false;
+    private Thread thread = null;
+
+    public ItemFrameDupe() {
+        super(CrystalAddon.CRYSTAL_DUPE_CATEGORY, "item-frame-dupe", "CRYSTAL || Dupes an item by quickly replacing an item frame.");
     }
 
     @Override
     public void onActivate() {
-        super.onActivate();
-        doItemFrameDupe();
+        thread = new Thread(this::doItemFrameDupe);
+        thread.start();
     }
 
-    public boolean getShouldDupe()
-    {
-        if (isActive()) {
-            if (!alwaysActive.get()) {
-                return mc.mouse.wasRightButtonClicked();
-            }
-            return true;
-        } else {
-            return false;
-        }
+    @Override
+    public void onDeactivate() {
+        if (thread != null && thread.isAlive()) thread.stop();
+    }
+
+    public boolean getShouldDupe() {
+        if (!alwaysActive.get()) return mc.mouse.wasRightButtonClicked();
+        return true;
     }
 
     @EventHandler
-    public void onInteractItemFrame(InteractEntityEvent interactEntityEvent)
-    {
+    public void onInteractItemFrame(InteractEntityEvent event) {
         if (getShouldDupe()) {
             if (!isDuping) {
-                if (!(interactEntityEvent.entity instanceof ItemFrameEntity)) {
-                    return;
-                }
-                Thread t = new Thread(this::doItemFrameDupe);
-                t.start();
-            } else {
-                return;
+                if (!(event.entity instanceof ItemFrameEntity)) return;
+                thread = new Thread(this::doItemFrameDupe);
+                thread.start();
             }
         }
     }
 
     public void doItemFrameDupe() throws AssertionError {
         isDuping = true;
-        ClientPlayerInteractionManager c = mc.interactionManager;
-        PlayerEntity p = mc.player;
-        ClientWorld w = mc.world;
-        if (c != null) {
-            if (p != null) {
-                if (w != null) {
-                    List<ItemFrameEntity> itemFrames;
-                    ItemFrameEntity itemFrame;
-                    Box box;
 
-                    while (true) {
-                        if (getShouldDupe()) {
-                            try {
-                                Thread.sleep((long) (destroyTime.get() * 0.5));
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            box = new Box(p.getEyePos().add(-3, -3, -3), p.getEyePos().add(3, 3, 3));
-                            itemFrames = w.getEntitiesByClass(ItemFrameEntity.class, box, itemFrameEntity -> true);
-                            if (!itemFrames.isEmpty()) {
-                                itemFrame = itemFrames.get(0);
-                                c.interactEntity(p, itemFrame, Hand.MAIN_HAND);
-                                try {
-                                    Thread.sleep((long) (destroyTime.get() * 0.5));
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                if (itemFrame.getHeldItemStack().getCount() <= 0) {
-                                    continue;
-                                }
-
-                                c.interactEntity(p, itemFrame, Hand.MAIN_HAND);
-
-                                try {
-                                    Thread.sleep((long) (destroyTime.get() * 0.7));
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                c.attackEntity(p, itemFrame);
-                                try {
-                                    Thread.sleep((long) (destroyTime.get() * 0.7));
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        } else {
-                            break;
-                        }
-
-                    }
-                    isDuping = false;
-                } else {
-                    throw new AssertionError();
-                }
-            } else {
-                throw new AssertionError();
+        while (getShouldDupe()) {
+            try {
+                long sleepTime = (long) (destroyTime.get() * 0.5);
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        } else {
-            throw new AssertionError();
+
+            Box box = new Box(mc.player.getEyePos().add(-3, -3, -3), mc.player.getEyePos().add(3, 3, 3));
+            List<ItemFrameEntity> itemFrames = mc.world.getEntitiesByClass(ItemFrameEntity.class, box, itemFrameEntity -> true);
+
+            if (!itemFrames.isEmpty()) {
+                ItemFrameEntity itemFrame = itemFrames.get(0);
+
+                mc.interactionManager.interactEntity(mc.player, itemFrame, Hand.MAIN_HAND);
+
+                try {
+                    Thread.sleep((long) (destroyTime.get() * 0.7));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (itemFrame.getHeldItemStack().getCount() > 0)
+                    mc.interactionManager.interactEntity(mc.player, itemFrame, Hand.MAIN_HAND);
+
+                try {
+                    Thread.sleep((long) (destroyTime.get() * 0.7));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                mc.interactionManager.attackEntity(mc.player, itemFrame);
+
+                try {
+                    Thread.sleep((long) (destroyTime.get() * 0.7));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else break;
         }
 
+        isDuping = false;
     }
 
     @EventHandler
     private void onGameLeft(GameLeftEvent event) {
-        if (!autoDisable.get()) {
-            return;
-        }
-        toggle();
+        if (autoDisable.get()) toggle();
     }
 }

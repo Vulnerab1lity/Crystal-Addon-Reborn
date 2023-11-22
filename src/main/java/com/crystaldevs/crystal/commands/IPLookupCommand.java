@@ -4,8 +4,8 @@ import com.crystaldevs.crystal.utils.crystal.IPInfo;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import meteordevelopment.meteorclient.commands.Command;
+import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
 import net.minecraft.command.CommandSource;
-import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +21,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class IPLookupCommand extends Command {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
     public IPLookupCommand() {
         super("iplookup", "Gives info about a specified IP address.", "lookup");
     }
@@ -29,7 +30,7 @@ public class IPLookupCommand extends Command {
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("ip", StringArgumentType.greedyString()).executes(context -> {
             String ip = context.getArgument("ip", String.class);
-            executor.execute(() -> checkIp(ip));
+            MeteorExecutor.execute(() -> checkIp(ip));
             return SINGLE_SUCCESS;
         }));
     }
@@ -47,15 +48,18 @@ public class IPLookupCommand extends Command {
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 StringBuilder response = new StringBuilder();
                 String line;
-                while ((line = br.readLine()) != null) {
+                while ((line = br.readLine()) != null)
                     response.append(line);
-                }
                 br.close();
 
                 String jsonString = response.toString();
                 IPInfo ipInfo = parseJsonResponse(jsonString);
 
-                if (ipInfo.getStatus().equals("Invalid IP") || ipInfo.getTimezone() == null && ipInfo.getCountry() == null && ipInfo.getIsp() == null && ipInfo.getZip() == null) {
+                if (ipInfo.getStatus().equals("Invalid IP")
+                        || ipInfo.getTimezone() == null
+                        && ipInfo.getCountry() == null
+                        && ipInfo.getIsp() == null
+                        && ipInfo.getZip() == null) {
                     error("Invalid IP Address.");
                 } else {
                     info("IP Information for " + ip + ":");
@@ -70,6 +74,7 @@ public class IPLookupCommand extends Command {
             System.err.println("Error occurred while contacting the API: " + e.getMessage());
         }
     }
+
     private IPInfo parseJsonResponse(String jsonString) {
         IPInfo ipInfo = new IPInfo();
 
@@ -78,29 +83,25 @@ public class IPLookupCommand extends Command {
         String[] keyValuePairs = jsonString.split(",");
         for (String pair : keyValuePairs) {
             String[] keyValue = pair.split(":", 2);
-            if (keyValue.length != 2) {
-                continue;
-            }
+            if (keyValue.length != 2) continue;
 
             String key = keyValue[0].trim().replaceAll("\"", "");
             String value = keyValue[1].trim();
 
             if (value.equals("null")) {
-                if ("lat".equals(key) || "lon".equals(key)) {
+                if ("lat".equals(key) || "lon".equals(key))
                     jsonMap.put(key, 0.0);
-                } else {
+                else
                     jsonMap.put(key, "");
-                }
                 continue;
             }
 
-            if (value.startsWith("\"") && value.endsWith("\"")) {
+            if (value.startsWith("\"") && value.endsWith("\""))
                 jsonMap.put(key, value.substring(1, value.length() - 1));
-            } else if (value.contains(".")) {
+            else if (value.contains("."))
                 jsonMap.put(key, Double.parseDouble(value));
-            } else {
+            else
                 jsonMap.put(key, value);
-            }
         }
 
         ipInfo.setStatus((String) jsonMap.get("status"));
@@ -112,49 +113,35 @@ public class IPLookupCommand extends Command {
         ipInfo.setZip((String) jsonMap.get("zip"));
 
         Object latObj = jsonMap.get("lat");
-        if (latObj instanceof String) {
+        if (latObj instanceof String)
             ipInfo.setLat(0.0);
-        } else if (latObj instanceof Double) {
+        else if (latObj instanceof Double)
             ipInfo.setLat((Double) latObj);
-        }
 
         Object lonObj = jsonMap.get("lon");
-        if (lonObj instanceof String) {
+        if (lonObj instanceof String)
             ipInfo.setLon(0.0);
-        } else if (lonObj instanceof Double) {
+        else if (lonObj instanceof Double)
             ipInfo.setLon((Double) lonObj);
-        }
 
         ipInfo.setTimezone((String) jsonMap.get("timezone"));
 
         String ispValue = (String) jsonMap.get("isp");
-        if (ispValue != null) {
+        if (ispValue != null)
             ipInfo.setIsp(ispValue.replaceAll(",", ""));
-        }
 
         String orgValue = (String) jsonMap.get("org");
-        if (orgValue != null) {
+        if (orgValue != null)
             ipInfo.setOrg(orgValue.replaceAll(",", ""));
-        }
 
         ipInfo.setAs((String) jsonMap.get("as"));
         ipInfo.setQuery((String) jsonMap.get("query"));
 
         boolean allNull = jsonMap.values().stream().allMatch(value -> value == null || (value instanceof String && ((String) value).isEmpty()));
 
-        if (allNull) {
+        if (allNull)
             ipInfo.setStatus("Invalid IP");
-        }
 
         return ipInfo;
-    }
-
-    private boolean isDouble(String value) {
-        try {
-            Double.parseDouble(value);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 }

@@ -17,21 +17,12 @@ public class SpoofNameCommand extends Command {
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("username", StringArgumentType.greedyString()).executes(context -> {
             String username = context.getArgument("username", String.class);
-            if(!username.isEmpty()) {
-                if(mc.world != null) {
-                    if(mc.player != null) {
-                        mc.player.setCustomName(Text.of(username));
-                        info("Succesfully spoofed username to: " + mc.player.getCustomName());
-                    } else {
-                        error("The player is null. Cannot execute command.");
-                    }
-                } else {
-                    error("The world is null. Cannot execute command.");
-                }
+            if (!username.isEmpty()) {
+                mc.player.setCustomName(Text.of(username));
+                info("Successfully spoofed your username to: " + username);
             } else {
                 error("Incomplete command. Must be .spoofname {username}.");
             }
-
             return SINGLE_SUCCESS;
         }));
     }

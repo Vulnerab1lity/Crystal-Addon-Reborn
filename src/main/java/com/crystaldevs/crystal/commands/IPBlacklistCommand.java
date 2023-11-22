@@ -13,6 +13,7 @@ import java.util.Scanner;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
+// TODO: Make this work
 public class IPBlacklistCommand extends Command {
     private static final String API_KEY = "1f2e42ff297481ac8976fd44fd7a88fee81870580cfd07c549dfa3a6a7ff3b122306803a9c081566";
     private static final String API_URL = "https://api.abuseipdb.com/api/v2/check";
@@ -47,23 +48,20 @@ public class IPBlacklistCommand extends Command {
                     if (!responseString.isEmpty()) {
                         boolean isBlacklisted = parseBlacklistResponse(responseString);
 
-                        if (isBlacklisted) {
+                        if (isBlacklisted)
                             info("IP address " + ipAddress + " is blacklisted.");
-                        } else {
+                        else
                             info("IP address " + ipAddress + " is not blacklisted.");
-                        }
                     } else {
                         error("Empty response received from the API.");
                     }
                 } else {
                     error("Request failed with status code: " + responseCode);
                 }
-
                 conn.disconnect();
             } catch (IOException e) {
                 error("An error occurred while checking the IP: " + e.getMessage());
             }
-
             return SINGLE_SUCCESS;
         }));
     }

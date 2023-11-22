@@ -10,19 +10,15 @@ import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 public class PScanRunner {
-    public boolean running = true;
-    public int portsScanned = 0;
-    ExecutorService es;
-    List<Future<PortScannerManager.ScanResult>> futures = new ArrayList<>();
-    Thread runner;
+    private boolean running = true;
+    private ExecutorService es;
+    private final List<Future<PortScannerManager.ScanResult>> futures = new ArrayList<>();
 
     public PScanRunner(InetAddress address, int threads, int threadDelay, int timeoutMS, Collection<Integer> ports,
                        Consumer<List<PortScannerManager.ScanResult>> callback) {
-        runner = new Thread(() -> {
+        new Thread(() -> {
             es = Executors.newFixedThreadPool(threads);
-            ports.forEach(port -> {
-                futures.add(isPortOpen(es, address.getHostAddress(), port, timeoutMS, threadDelay));
-            });
+            ports.forEach(port -> futures.add(isPortOpen(es, address.getHostAddress(), port, timeoutMS, threadDelay)));
             try {
                 es.awaitTermination(200L, TimeUnit.MILLISECONDS);
             } catch (InterruptedException ignored) {
@@ -36,28 +32,23 @@ public class PScanRunner {
                 }
             }
             callback.accept(results);
-        });
-        runner.start();
+        }).start();
     }
 
     public void cancel() {
         running = false;
     }
 
-    private Future<PortScannerManager.ScanResult> isPortOpen(ExecutorService es, String ip, int port, int timeout,
-                                                             int delay) {
+    private Future<PortScannerManager.ScanResult> isPortOpen(ExecutorService es, String ip, int port, int timeout, int delay) {
         return es.submit(() -> {
-            if (!running)
-                return new PortScannerManager.ScanResult(port, false);
+            if (!running) return new PortScannerManager.ScanResult(port, false);
             Thread.sleep(delay);
-            portsScanned++;
             try {
                 Socket socket = new Socket();
                 socket.connect(new InetSocketAddress(ip, port), timeout);
                 socket.close();
                 return new PortScannerManager.ScanResult(port, true);
-            } catch (Exception exc) {
-
+            } catch (Exception ignored) {
                 return new PortScannerManager.ScanResult(port, false);
             }
         });

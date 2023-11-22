@@ -6,22 +6,8 @@ import java.util.List;
 public class PortScannerManager {
     public static List<PScanRunner> scans = new ArrayList<>();
 
-    public static void killAllScans() {
-        int i = 0, scansSize = scans.size();
-        while (i < scansSize) {
-            PScanRunner runner = scans.get(i);
-            if (!runner.running) {
-            } else {
-                runner.cancel();
-            }
-            i++;
-        }
-        scans.clear();
-    }
-
     public static class ScanResult {
         private int port;
-
         private boolean isOpen;
 
         public ScanResult(int port, boolean isOpen) {
@@ -45,6 +31,5 @@ public class PortScannerManager {
         public void setOpen(boolean isOpen) {
             this.isOpen = isOpen;
         }
-
     }
 }

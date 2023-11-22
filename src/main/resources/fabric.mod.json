@@ -6,28 +6,20 @@
   "license": "GPL-3.0",
   "description": "A Meteor Client addon for duping, utility, and finding exploits.",
   "authors": [
-    "SpecKeef",
-    "9x00",
-    "ModMass"
+    "F_x"
   ],
   "contact": {
-    "repo": "https://github.com/SpecKeef/Crystal-Addon",
-    "issues": "https://github.com/SpecKeef/Crystal-Addon/issues",
-    "homepage": "https://crystaladdon.vercel.app/",
-    "discord": "https://discord.com/invite/8amWPxkdnT"
+    "repo": "https://github.com/GriefUnion/Crystal-Addon-Recontinued",
+    "issues": "https://github.com/GriefUnion/Crystal-Addon-Recontinued/issues",
+    "discord": "https://discord.gg/7Rve5uHB"
   },
-
   "icon": "assets/crystal/icon.png",
   "environment": "*",
   "entrypoints": {
     "meteor": [
       "com.crystaldevs.crystal.CrystalAddon"
-    ],
-    "seedcrackerx": [
-      "com.crystaldevs.crystal.utils.mc.SeedCrackerEP"
     ]
   },
-
   "mixins": [
     "mixins/crystal.mixins.json",
     "mixins/crystal-meteor.mixins.json"
@@ -38,10 +30,8 @@
   },
   "depends": {
     "java": ">=17",
-    "minecraft": ["1.20.2", "1.20.1", "1.20"],
+    "minecraft": "1.20.2",
     "meteor-client": "*",
-    "fabricloader": ">=0.14.24",
-    "fabric": "*",
-    "midnightlib": ">=1.5.0"
+    "fabricloader": ">=0.14.24"
   }
 }

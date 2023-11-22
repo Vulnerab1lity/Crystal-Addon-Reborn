@@ -21,21 +21,19 @@ public class TracerouteCommand extends Command {
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("ip", StringArgumentType.greedyString())
-            .executes(context -> {
-                String ip = context.getArgument("ip", String.class);
+                .executes(context -> {
+                    String ip = context.getArgument("ip", String.class);
 
-                try {
-                    List<String> tracerouteResults = performTraceroute(ip);
+                    try {
+                        List<String> tracerouteResults = performTraceroute(ip);
 
-                    for (String result : tracerouteResults) {
-                        info(result);
+                        for (String result : tracerouteResults)
+                            info(result);
+                    } catch (IOException e) {
+                        error("An error occurred while performing traceroute.");
                     }
-                } catch (IOException e) {
-                    error("An error occurred while performing traceroute.");
-                }
-
-                return SINGLE_SUCCESS;
-            })
+                    return SINGLE_SUCCESS;
+                })
         );
     }
 
@@ -46,9 +44,7 @@ public class TracerouteCommand extends Command {
         BufferedReader reader = new BufferedReader(new InputStreamReader(tracerouteProcess.getInputStream()));
 
         String line;
-        while ((line = reader.readLine()) != null) {
-            results.add(line);
-        }
+        while ((line = reader.readLine()) != null) results.add(line);
 
         return results;
     }

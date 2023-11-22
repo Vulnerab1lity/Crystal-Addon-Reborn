@@ -21,22 +21,21 @@ public class CheckSSLCommand extends Command {
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("domain", StringArgumentType.greedyString())
-            .executes(context -> {
-                String domain = context.getArgument("domain", String.class);
+                .executes(context -> {
+                    String domain = context.getArgument("domain", String.class);
 
-                try {
-                    SSLInfo sslInfo = getSSLInfo(domain);
+                    try {
+                        SSLInfo sslInfo = getSSLInfo(domain);
 
-                    info("SSL Certificate Information for " + domain);
-                    info("Issuer: " + sslInfo.getIssuer());
-                    info("Subject: " + sslInfo.getSubject());
-                    info("Validity: " + sslInfo.getValidity());
-                } catch (IOException e) {
-                    error("An error occurred while checking the SSL certificate.");
-                }
-
-                return SINGLE_SUCCESS;
-            })
+                        info("SSL Certificate Information for " + domain);
+                        info("Issuer: " + sslInfo.issuer());
+                        info("Subject: " + sslInfo.subject());
+                        info("Validity: " + sslInfo.validity());
+                    } catch (IOException e) {
+                        error("An error occurred while checking the SSL certificate.");
+                    }
+                    return SINGLE_SUCCESS;
+                })
         );
     }
 
@@ -49,34 +48,12 @@ public class CheckSSLCommand extends Command {
 
         X509Certificate x509Certificate = (X509Certificate) certs[0];
 
-        String issuer = x509Certificate.getIssuerDN().getName();
-        String subject = x509Certificate.getSubjectDN().getName();
+        String issuer = x509Certificate.getIssuerX500Principal().getName();
+        String subject = x509Certificate.getSubjectX500Principal().getName();
         String validity = x509Certificate.getNotBefore() + " - " + x509Certificate.getNotAfter();
-
         return new SSLInfo(issuer, subject, validity);
     }
 
-    private static class SSLInfo {
-        private final String issuer;
-        private final String subject;
-        private final String validity;
-
-        public SSLInfo(String issuer, String subject, String validity) {
-            this.issuer = issuer;
-            this.subject = subject;
-            this.validity = validity;
-        }
-
-        public String getIssuer() {
-            return issuer;
-        }
-
-        public String getSubject() {
-            return subject;
-        }
-
-        public String getValidity() {
-            return validity;
-        }
+    private record SSLInfo(String issuer, String subject, String validity) {
     }
 }

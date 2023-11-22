@@ -3,10 +3,6 @@
   "package": "com.crystaldevs.crystal.mixin.meteor",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "AccountMixin",
-    "AccountsMixin",
-    "HttpMixin",
-    "HttpRequestMixin",
-    "modules.KillAuraMixin"
+    "HttpMixin"
   ]
 }

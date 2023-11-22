@@ -7,10 +7,6 @@ import com.mojang.brigadier.context.CommandContext;
 import meteordevelopment.meteorclient.commands.Command;
 import net.minecraft.command.CommandSource;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
@@ -40,8 +36,6 @@ public class GeneratePasswordCommand extends Command {
                 e.printStackTrace();
             }
         }
-
         return SINGLE_SUCCESS;
     }
-
 }

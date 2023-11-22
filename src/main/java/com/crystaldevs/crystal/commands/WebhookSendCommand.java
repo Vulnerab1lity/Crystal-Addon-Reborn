@@ -19,56 +19,48 @@ public class WebhookSendCommand extends Command {
 
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("webhook", StringArgumentType.greedyString())
-            .then(argument("message", StringArgumentType.string())
-                .executes(context -> {
-                    String webhook = context.getArgument("webhook", String.class);
-                    String message = context.getArgument("message", String.class);
+                .then(argument("message", StringArgumentType.string())
+                        .executes(context -> {
+                            String webhook = context.getArgument("webhook", String.class);
+                            String message = context.getArgument("message", String.class);
 
-                    String result = webhook.replaceAll("\\s", "");
+                            if (!webhook.isEmpty()) {
+                                if (!webhook.startsWith("https://")) {
+                                    webhook = "https://" + webhook;
+                                }
 
-                    if (!webhook.isEmpty()) {
+                                if (!webhook.contains("discord.com/api/webhooks/")) {
+                                    error("Invalid discord webhook URL.");
+                                    return SINGLE_SUCCESS;
+                                }
 
-                        if (!result.startsWith("https://")) {
-                            result = "https://" + result;
-                        }
+                                try {
+                                    URL url = new URL(webhook);
+                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                    conn.setRequestMethod("POST");
+                                    conn.setRequestProperty("Content-Type", "application/json");
+                                    conn.setDoOutput(true);
 
-                        if (!result.contains("discord.com/api/webhooks/")) {
-                            error("Invalid discord webhook URL.");
-                            return SINGLE_SUCCESS;
-                        }
+                                    String jsonPayload = "{\"content\":\"" + message + "\"}";
 
-                        try {
-                            URL url = new URL(result);
-                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                            conn.setRequestMethod("POST");
-                            conn.setRequestProperty("Content-Type", "application/json");
-                            conn.setDoOutput(true);
+                                    DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream());
+                                    outputStream.writeBytes(jsonPayload);
+                                    outputStream.flush();
+                                    outputStream.close();
 
-                            String jsonPayload = "{\"content\":\"" + message + "\"}";
-
-                            DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream());
-                            outputStream.writeBytes(jsonPayload);
-                            outputStream.flush();
-                            outputStream.close();
-
-                            int responseCode = conn.getResponseCode();
-                            if (responseCode == 204) {
-                                info("Message sent to webhook successfully.");
+                                    int responseCode = conn.getResponseCode();
+                                    if (responseCode == 204)
+                                        info("Message sent to webhook successfully.");
+                                    else
+                                        error("Failed to send message to webhook. Response code: " + responseCode);
+                                } catch (IOException ignored) {
+                                }
                             } else {
-                                error("Failed to send message to webhook. Response code: " + responseCode);
+                                error("Incomplete command. Must be .webhook-delete {webhook} \"{message}\".");
                             }
-
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                    } else {
-                        error("Incomplete command. Must be .webhook-delete {webhook} \"{message}\".");
-                    }
-
-                    return SINGLE_SUCCESS;
-                })
-            )
+                            return SINGLE_SUCCESS;
+                        })
+                )
         );
     }
 }

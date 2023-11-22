@@ -10,37 +10,33 @@ public class BoatPhase extends Module {
     private BoatEntity boat = null;
 
     public BoatPhase() {
-        super(Categories.Movement, "Boat Phase", "CRYSTAL || Allows you to phase through blocks using a boat.");
+        super(Categories.Movement, "boat-phase", "CRYSTAL || Allows you to phase through blocks using a boat.");
     }
 
+    @Override
     public void onActivate() {
-        assert this.mc.player != null;
-        if (!(this.mc.player.getVehicle() instanceof BoatEntity)) {
-            this.error("You must be in a boat to use this.");
-            this.toggle();
+        if (mc.player == null) return;
+        if (!(mc.player.getVehicle() instanceof BoatEntity)) {
+            error("You must be in a boat to use ");
+            toggle();
         } else {
-            this.boat = (BoatEntity)this.mc.player.getVehicle();
-            this.boat.noClip = true;
-            this.boat.setNoGravity(true);
-            this.mc.player.noClip = true;
+            boat = (BoatEntity) mc.player.getVehicle();
+            boat.noClip = true;
+            boat.setNoGravity(true);
         }
     }
 
+    @Override
     public void onDeactivate() {
-        if (this.mc.player != null) {
-            this.mc.player.noClip = false;
-        }
-        if (this.boat != null) {
-            this.boat.noClip = false;
-            this.boat.setNoGravity(false);
+        if (boat != null) {
+            boat.noClip = false;
+            boat.setNoGravity(false);
         }
     }
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
-        if (this.mc.player != null && !(this.mc.player.getVehicle() instanceof BoatEntity)) {
-            this.toggle();
-        }
-
+        if (!(mc.player.getVehicle() instanceof BoatEntity))
+            toggle();
     }
 }

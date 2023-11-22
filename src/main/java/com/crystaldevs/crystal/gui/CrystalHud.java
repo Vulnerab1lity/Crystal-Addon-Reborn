@@ -14,9 +14,12 @@ public class CrystalHud extends HudElement {
     }
 
     @Override
-    public void render(HudRenderer renderer) {
+    public void tick(HudRenderer renderer) {
         setSize(renderer.textWidth("Crystal Watermark", true), renderer.textHeight(true));
+    }
 
+    @Override
+    public void render(HudRenderer renderer) {
         renderer.text("Crystal Addon", 1, 2, Color.MAGENTA, true);
     }
 }

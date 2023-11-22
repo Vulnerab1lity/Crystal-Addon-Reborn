@@ -43,11 +43,10 @@ public class TwoBTwoTSeenCommand extends Command {
 
                     if (!responseString.isEmpty()) {
                         String seenTimestamp = parseSeenResponse(responseString);
-                        if (!seenTimestamp.isEmpty()) {
+                        if (!seenTimestamp.isEmpty())
                             info(username + " was last seen on 2b2t at: " + seenTimestamp);
-                        } else {
+                        else
                             info(username + " has not been seen on 2b2t.");
-                        }
                     } else {
                         error("Empty response received from the API.");
                     }
@@ -67,12 +66,11 @@ public class TwoBTwoTSeenCommand extends Command {
 
     private String parseSeenResponse(String responseString) {
         try {
-            JsonArray jsonArray = new JsonParser().parse(responseString).getAsJsonArray();
+            JsonArray jsonArray = JsonParser.parseString(responseString).getAsJsonArray();
 
-            if (jsonArray.size() > 0) {
+            if (!jsonArray.isEmpty()) {
                 JsonObject jsonObject = jsonArray.get(0).getAsJsonObject();
-                String seenTimestamp = jsonObject.get("seen").getAsString();
-                return seenTimestamp;
+                return jsonObject.get("seen").getAsString();
             } else {
                 return "Unknown Date";
             }
@@ -80,6 +78,4 @@ public class TwoBTwoTSeenCommand extends Command {
             return "Unknown Date (Parsing Error)";
         }
     }
-
-
 }

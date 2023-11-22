@@ -21,7 +21,6 @@ public class NetProxyDisconnectCommand extends Command {
                 NetProxyCommand.setCurrentProxy(Proxy.NO_PROXY);
                 info("Disconnected from the proxy.");
             }
-
             return SINGLE_SUCCESS;
         });
     }

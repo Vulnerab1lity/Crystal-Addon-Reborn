@@ -1,17 +1,14 @@
 package com.crystaldevs.crystal.commands;
 
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import meteordevelopment.meteorclient.commands.Command;
+import meteordevelopment.meteorclient.utils.network.MeteorExecutor;
 import net.minecraft.command.CommandSource;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
@@ -23,29 +20,25 @@ public class PingCommand extends Command {
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.then(argument("ip", StringArgumentType.greedyString())
-            .executes(context -> {
-                String ip = context.getArgument("ip", String.class);
+                .executes(context -> {
+                    String ip = context.getArgument("ip", String.class);
 
-                if (!isValidDomain(ip)) {
-                    error("Invalid IP/Domain: " + ip);
-                    return SINGLE_SUCCESS;
-                }
+                    if (!isValidDomain(ip)) {
+                        error("Invalid IP/Domain: " + ip);
+                        return SINGLE_SUCCESS;
+                    }
 
-                try {
                     int pingAttempts = 5;
-
-                    ExecutorService executor = Executors.newFixedThreadPool(pingAttempts);
 
                     for (int i = 0; i < pingAttempts; i++) {
                         int finalI = i;
-                        executor.submit(() -> {
+                        MeteorExecutor.execute(() -> {
                             try {
                                 InetAddress address = InetAddress.getByName(ip);
-                                if (address.isReachable(2000)) {
+                                if (address.isReachable(2000))
                                     info("Ping attempt " + (finalI + 1) + ": " + ip + " - Ping successful");
-                                } else {
+                                else
                                     error("Ping attempt " + (finalI + 1) + ": " + ip + " - Request timed out");
-                                }
                             } catch (UnknownHostException e) {
                                 error("Invalid IP/Domain: " + ip);
                             } catch (IOException e) {
@@ -53,16 +46,8 @@ public class PingCommand extends Command {
                             }
                         });
                     }
-
-                    executor.shutdown();
-                    executor.awaitTermination(5, TimeUnit.SECONDS);
-
-                } catch (InterruptedException e) {
-                    error("Interrupted while waiting for ping attempts to complete.");
-                }
-
-                return SINGLE_SUCCESS;
-            })
+                    return SINGLE_SUCCESS;
+                })
         );
     }
 

@@ -17,6 +17,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class TwoBTwoTStatsCommand extends Command {
     private static final String API_URL = "https://api.2b2t.dev/stats?username=";
+    private final Pattern FIELD_PATTERN = Pattern.compile("\"(\\w+)\":\\s*([\\d.-]+)");
 
     public TwoBTwoTStatsCommand() {
         super("2b2tstats", "Check statistics for a user on 2b2t.", "2b2tstats");
@@ -39,11 +40,10 @@ public class TwoBTwoTStatsCommand extends Command {
                     String responseString = scanner.hasNext() ? scanner.next() : "";
                     inputStream.close();
 
-                    if (!responseString.isEmpty()) {
+                    if (!responseString.isEmpty())
                         parseStatsResponse(responseString, username);
-                    } else {
+                    else
                         error("Empty response received from the API.");
-                    }
                 } else {
                     error("Request failed with status code: " + responseCode);
                 }
@@ -58,23 +58,15 @@ public class TwoBTwoTStatsCommand extends Command {
     }
 
     private void parseStatsResponse(String responseString, String username) {
-        Pattern fieldPattern = Pattern.compile("\"(\\w+)\":\\s*([\\d.-]+)");
-        Matcher matcher = fieldPattern.matcher(responseString);
+        Matcher matcher = FIELD_PATTERN.matcher(responseString);
 
         while (matcher.find()) {
             String fieldName = matcher.group(1);
             String fieldValue = matcher.group(2);
 
             switch (fieldName) {
-                case "kills":
-                    int kills = Integer.parseInt(fieldValue);
-                    info(username + " has " + kills + " kills.");
-                    break;
-                case "deaths":
-                    int deaths = Integer.parseInt(fieldValue);
-                    info(username + " has " + deaths + " deaths.");
-                    break;
-                // Add more cases for additional fields
+                case "kills" -> info(username + " has " + Integer.parseInt(fieldValue) + " kills.");
+                case "deaths" -> info(username + " has " + Integer.parseInt(fieldValue) + " deaths.");
             }
         }
     }

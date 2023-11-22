@@ -1,19 +1,15 @@
 package com.crystaldevs.crystal.modules.misc;
 
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
-import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.PacketListSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.network.PacketUtils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +28,12 @@ public class PacketChoker extends Module {
     private final List<Packet<?>> chokedPackets = new ArrayList<>();
 
     public PacketChoker() {
-        super(Categories.Misc, "Packet Choker", "Chokes packets.");
+        super(Categories.Misc, "packet-choker", "Chokes packets.");
     }
 
     @Override
     public void onDeactivate() {
-        for (Packet<?> packet : chokedPackets) {
-            mc.player.networkHandler.sendPacket(packet);
-        }
+        for (Packet<?> packet : chokedPackets) mc.player.networkHandler.sendPacket(packet);
         chokedPackets.clear();
     }
 

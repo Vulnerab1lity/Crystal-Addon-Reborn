@@ -8,13 +8,12 @@ import net.minecraft.network.packet.c2s.play.CloseHandledScreenC2SPacket;
 
 public class SecretClose extends Module {
     public SecretClose() {
-        super(Categories.Misc, "SecretClose", "CRYSTAL || Does not send a CloseHandledScreen packet.");
+        super(Categories.Misc, "secret-close", "CRYSTAL || Does not send a CloseHandledScreen packet.");
     }
 
     @EventHandler
     private void onPacketSend(PacketEvent.Send event) {
-        if (event.packet instanceof CloseHandledScreenC2SPacket) {
+        if (event.packet instanceof CloseHandledScreenC2SPacket)
             event.setCancelled(true);
-        }
     }
 }

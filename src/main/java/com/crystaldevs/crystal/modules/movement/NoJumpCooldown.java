@@ -13,8 +13,6 @@ public class NoJumpCooldown extends Module {
 
     @EventHandler
     private void onTick(TickEvent.Post event) {
-        if (this.mc.player != null) {
-            ((LivingEntityAccessor)this.mc.player).setJumpCooldown(0);
-        }
+        if (mc.player != null) ((LivingEntityAccessor) mc.player).setJumpCooldown(0);
     }
 }
