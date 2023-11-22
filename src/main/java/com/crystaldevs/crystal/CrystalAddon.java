@@ -115,7 +115,7 @@ public class CrystalAddon extends MeteorAddon {
         Commands.add(new LatencyCommand());
         Commands.add(new Title());
         Commands.add(new ClearCommand());
-        Commands.add(new IPLookupCommand());
+        Commands.add(new CheckHostCommand());
         Commands.add(new DNSLookupCommand());
         Commands.add(new IPBlacklistCommand());
         Commands.add(new PingCommand());
