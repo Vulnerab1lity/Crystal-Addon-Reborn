@@ -6,7 +6,7 @@
 ![GitHub issues](https://img.shields.io/github/issues/GriefUnion/Crystal-Addon-Reborn)
 ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/GriefUnion/Crystal-Addon-Reborn)
 ![GitHub contributors](https://img.shields.io/github/contributors/GriefUnion/Crystal-Addon-Reborn)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/GriefUnion/Crystal-Addon-Reborn/main)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/GriefUnion/Crystal-Addon-Reborn/master)
 ![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/GriefUnion/Crystal-Addon-Reborn)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/GriefUnion/Crystal-Addon-Reborn)
 [![](https://tokei.rs/b1/github/GriefUnion/Crystal-Addon-Reborn?category=lines)](https://github.com/GriefUnion/Crystal-Addon-Reborn)
