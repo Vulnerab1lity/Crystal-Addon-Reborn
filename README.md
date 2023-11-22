@@ -55,12 +55,6 @@ We are here to provide you with the best support possible. If you have any quest
 * Latest
   * [Download](https://github.com/GriefUnion/Crystal-Addon-Reborn/releases/latest)
 
-## Commit info
-* `[A]` is for an addition.
-* `[F]` is for a fix.
-* `[U]` is for an update.
-* `[R]` is for a removal.
-
 # Legal
 
 [LICENSE](https://github.com/GriefUnion/Crystal-Addon-Reborn/blob/main/LICENSE)
