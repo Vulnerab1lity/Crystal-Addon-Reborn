@@ -28,7 +28,7 @@ public class CrackedBruteforce extends Module {
     public CrackedBruteforce() {
         super(Categories.Misc, "cracked-bruteforcer", "CRYSTAL || Attempts to bruteforce the login on cracked servers.");
 
-        String username = mc.player.getGameProfile().getName();
+        String username = mc.getSession().getUsername();
         passwords.add(username);
         passwords.add(username + "1");
         passwords.add(username + "12");
