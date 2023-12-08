@@ -47,7 +47,7 @@ We are here to provide you with the best support possible. If you have any quest
 
 * Founder: 9x00
 
-* [GriefUnion](https://github.com/GriefUnion) Rewriting & recontinuing the addon.
+* [GriefUnion](https://github.com/GriefUnion) Rewriting & recontinuing the addon, also for most of the modules that were in the original crystal addon.
 
 # Info 
 
@@ -55,15 +55,9 @@ We are here to provide you with the best support possible. If you have any quest
 * Latest
   * [Download](https://github.com/GriefUnion/Crystal-Addon-Reborn/releases/latest)
 
-## Commit info
-* `[A]` is for an addition.
-* `[F]` is for a fix.
-* `[U]` is for an update.
-* `[R]` is for a removal.
-
 # Legal
 
-[LICENSE](https://github.com/GriefUnion/Crystal-Addon-Reborn/blob/main/LICENSE)
+[LICENSE](https://github.com/GriefUnion/Crystal-Addon-Reborn/blob/master/LICENSE)
 
 * Modules like UDP Flood are only for pen-testing and educational purposes. I strongly discourage any malicious use of them.
 
