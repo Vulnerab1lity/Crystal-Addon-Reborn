@@ -20,7 +20,7 @@ public class TwoBTwoTStatsCommand extends Command {
     private final Pattern FIELD_PATTERN = Pattern.compile("\"(\\w+)\":\\s*([\\d.-]+)");
 
     public TwoBTwoTStatsCommand() {
-        super("2b2tstats", "Check statistics for a user on 2b2t.", "2b2tstats");
+        super("2b2t-stats", "Check statistics for a user on 2b2t.", "2b2tstats");
     }
 
     @Override

@@ -28,7 +28,7 @@ public class PacketChoker extends Module {
     private final List<Packet<?>> chokedPackets = new ArrayList<>();
 
     public PacketChoker() {
-        super(Categories.Misc, "packet-choker", "Chokes packets.");
+        super(Categories.Misc, "packet-choker", "CRYSTAL || Chokes packets.");
     }
 
     @Override

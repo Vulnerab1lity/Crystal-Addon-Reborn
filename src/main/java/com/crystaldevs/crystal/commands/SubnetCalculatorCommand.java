@@ -12,7 +12,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class SubnetCalculatorCommand extends Command {
     public SubnetCalculatorCommand() {
-        super("subnetcalc", "Calculate subnet details based on a given IP address and subnet mask.", "subnetcalc");
+        super("subnet-calc", "Calculate subnet details based on a given IP address and subnet mask.", "subnetcalc");
     }
 
     @Override

@@ -32,7 +32,7 @@ public class BoatFling extends Module {
     );
 
     public BoatFling() {
-        super(Categories.Movement, "Boat Fling", "CRYSTAL || Allows you to fling using boats.");
+        super(Categories.Movement, "boat-fling", "CRYSTAL || Allows you to fling using boats.");
     }
 
     @Override
@@ -51,7 +51,11 @@ public class BoatFling extends Module {
         } else {
             mc.player.getVehicle().setVelocity(0.0, 0.0, 0.0);
             for (int i = 0; i < speed.get(); i++) {
-                mc.player.getVehicle().updatePosition(mc.player.getVehicle().getX(), mc.player.getVehicle().getY() + updateAmount.get(), mc.player.getVehicle().getZ());
+                mc.player.getVehicle().updatePosition(
+                        mc.player.getVehicle().getX(),
+                        mc.player.getVehicle().getY() + updateAmount.get(),
+                        mc.player.getVehicle().getZ()
+                );
                 mc.player.networkHandler.sendPacket(new VehicleMoveC2SPacket(mc.player.getVehicle()));
             }
         }

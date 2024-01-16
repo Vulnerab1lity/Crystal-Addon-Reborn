@@ -8,7 +8,7 @@ import meteordevelopment.orbit.EventHandler;
 
 public class NoJumpCooldown extends Module {
     public NoJumpCooldown() {
-        super(Categories.Movement, "no-jump-cooldown", "Removes the jump cooldown.");
+        super(Categories.Movement, "no-jump-cooldown", "CRYSTAL || Removes the jump cooldown.");
     }
 
     @EventHandler

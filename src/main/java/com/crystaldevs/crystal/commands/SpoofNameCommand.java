@@ -11,7 +11,7 @@ import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class SpoofNameCommand extends Command {
     public SpoofNameCommand() {
-        super("spoofname", "Spoofs your minecraft username locally.", "spoofuser");
+        super("spoof-name", "Spoofs your minecraft username locally.", "spoofuser");
     }
 
     public void build(LiteralArgumentBuilder<CommandSource> builder) {

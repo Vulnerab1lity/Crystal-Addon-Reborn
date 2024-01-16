@@ -7,7 +7,7 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.client.gui.screen.ingame.SignEditScreen;
+import net.minecraft.client.gui.screen.ingame.AbstractSignEditScreen;
 import net.minecraft.network.packet.c2s.play.UpdateSignC2SPacket;
 
 public class AutoLagSign extends Module {
@@ -54,29 +54,34 @@ public class AutoLagSign extends Module {
     );
 
     public AutoLagSign() {
-        super(CrystalAddon.CRYSTAL_CRASH_CATEGORY, "auto-lag-sign", "Automatically writes lag signs.");
+        super(CrystalAddon.CRYSTAL_CRASH_CATEGORY, "auto-lag-sign", "CRYSTAL || Automatically writes lag signs.");
     }
 
     @EventHandler
     private void onOpenScreen(OpenScreenEvent event) {
-        if (!(event.screen instanceof SignEditScreen)) return;
+        if (!(event.screen instanceof AbstractSignEditScreen)) return;
         SignBlockEntity sign = ((AbstractSignEditScreenAccessor) event.screen).getSign();
-        String signText;
-        if (mode.get() != Mode.Custom) signText = mode.get() == Mode.Random ? (colorChar.get() ? (colorMode.get() == ColorMode.Vanilla ? "§§kk" : "&k") + generateMessage() : generateMessage()) : (colorChar.get() ? (colorMode.get() == ColorMode.Vanilla ? "§§kk" : "&k") + "\uFFFF".repeat(amount.get() - (colorMode.get() == ColorMode.Vanilla ? 4 : 2)) : "\uFFFF".repeat(amount.get()));
-        else signText = (colorChar.get() ? (colorMode.get() == ColorMode.Vanilla ? "§§kk" : "&k") : "") + customChar.get().substring(0, 1).repeat(amount.get() - (colorChar.get() ? (colorMode.get() == ColorMode.Vanilla ? 4 : 2) : 0));
-        mc.player.networkHandler.sendPacket(new UpdateSignC2SPacket(sign.getPos(), true, signText, signText, signText, signText));
+        mc.player.networkHandler.sendPacket(new UpdateSignC2SPacket(sign.getPos(), true, generateSignText(), generateSignText(), generateSignText(), generateSignText()));
         event.setCancelled(true);
     }
 
-    private String generateMessage() {
+    private String generateSignText() {
+        String prefix = colorChar.get() ? (colorMode.get() == ColorMode.Vanilla ? "§§kk" : "&k") : "";
+        int length = amount.get() - prefix.length();
+        return switch (mode.get()) {
+            case Random -> prefix + generateMessage(length);
+            case Custom -> prefix + customChar.get().substring(0, 1).repeat(length);
+        };
+    }
+
+    private String generateMessage(int length) {
         StringBuilder message = new StringBuilder();
-        for (int i = 0; i < (colorChar.get() ? amount.get() - (colorMode.get() == ColorMode.Vanilla ? 4 : 2) : amount.get()); i++) message.append((char) (0x4e00 + (int) (Math.random() * (0x9fa5 - 0x4e00 + 1))));
+        for (int i = 0; i < length; i++) message.append((char) (0x4e00 + (int) (Math.random() * (0x9fa5 - 0x4e00 + 1))));
         return message.toString();
     }
 
     public enum Mode {
         Random,
-        FFFF,
         Custom
     }
 

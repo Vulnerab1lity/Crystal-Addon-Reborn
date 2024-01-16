@@ -27,14 +27,7 @@ public class GeneratePasswordCommand extends Command {
             mc.keyboard.setClipboard(password);
             info("Generated password: %s (copied to clipboard)", password);
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().equals("Password length must be greater than zero.")) {
-                error("Password length must be greater than zero.");
-            } else if (e.getMessage().equals("Password length must be smaller than 100.")) {
-                error("Password length must be smaller than 100.");
-            } else {
-                error("An error occurred while generating the password.");
-                e.printStackTrace();
-            }
+            error(e.getMessage());
         }
         return SINGLE_SUCCESS;
     }

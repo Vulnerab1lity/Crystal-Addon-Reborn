@@ -21,7 +21,7 @@ public class TwoBTwoTSeenCommand extends Command {
     private static final String API_URL = "https://api.2b2t.dev/seen?username=";
 
     public TwoBTwoTSeenCommand() {
-        super("2b2tseen", "Check when a user was last seen on 2b2t.", "2b2tseen");
+        super("2b2t-seen", "Check when a user was last seen on 2b2t.", "2b2tseen");
     }
 
     @Override

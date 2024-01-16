@@ -15,7 +15,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class CheckSSLCommand extends Command {
     public CheckSSLCommand() {
-        super("checkssl", "Check the SSL certificate of a domain.", "checkssl");
+        super("check-ssl", "Check the SSL certificate of a domain.", "checkssl");
     }
 
     @Override

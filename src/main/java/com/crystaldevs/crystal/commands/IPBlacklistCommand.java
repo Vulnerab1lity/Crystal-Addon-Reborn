@@ -20,7 +20,7 @@ public class IPBlacklistCommand extends Command {
     private static final String API_URL = "https://api.abuseipdb.com/api/v2/check";
 
     public IPBlacklistCommand() {
-        super("ipblacklist", "Check if an IP address is blacklisted in known databases.", "ipblacklist");
+        super("ip-blacklist", "Check if an IP address is blacklisted in known databases.", "ipblacklist");
     }
 
     @Override

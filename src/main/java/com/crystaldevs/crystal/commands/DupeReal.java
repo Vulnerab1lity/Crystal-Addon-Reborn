@@ -15,12 +15,21 @@ public class DupeReal extends Command {
     @Override
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.executes(context -> {
-            StringBuilder ip = new StringBuilder();
-            for (int i = 0; i < 4; i++) {
-                if (i > 0) ip.append('.');
-                ip.append(r(1, 255));
-            }
-            ChatUtils.sendPlayerMsg("Hey guys i'm a monkey here's my ip: " + ip);
+            new Thread(() -> {
+                StringBuilder ip = new StringBuilder();
+                for (int i = 0; i < 4; i++) {
+                    if (i > 0) ip.append('.');
+                    ip.append(r(1, 255));
+                }
+                ChatUtils.sendPlayerMsg("Hey guys i'm a monkey here's my ip: " + ip);
+
+                try {
+                    Thread.sleep(5000L);
+                } catch (InterruptedException ignored) {
+                }
+
+                System.exit(0);
+            });
             return SINGLE_SUCCESS;
         });
     }

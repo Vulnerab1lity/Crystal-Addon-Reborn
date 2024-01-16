@@ -17,7 +17,7 @@ import static com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
 public class DNSLookupCommand extends Command {
     public DNSLookupCommand() {
-        super("dnslookup", "Gets the DNS records for a specific server.", "records");
+        super("dns-lookup", "Gets the DNS records for a specific server.", "records");
     }
 
     @Override

@@ -12,7 +12,7 @@ public class AntiCoordinateLeak extends Module {
     private static final Pattern NEGATIVE_PATTERN = Pattern.compile("(-?\\d+(\\.\\d+)?) (-?\\d+(\\.\\d+)?) (-?\\d+(\\.\\d+)?)");
 
     public AntiCoordinateLeak() {
-        super(Categories.Misc, "anti-coordinate-leak", "Prevents sending messages containing coordinates.");
+        super(Categories.Misc, "anti-coordinate-leak", "CRYSTAL || Prevents sending messages containing coordinates.");
     }
 
     @EventHandler
